@@ -34,7 +34,7 @@ void loop() {
   
   // Cycle through different gauntlet animations every 5 seconds
   if(millis() - lastModeChange > 5000) {
-    animationMode = (animationMode + 1) % 9;
+    animationMode = (animationMode + 1) % 10;
     lastModeChange = millis();
     chargeLevel = 0;
     chargingUp = true;
@@ -45,27 +45,30 @@ void loop() {
       drawChainCode();
       break;
     case 1:
-      drawWristRocket();
+      drawJetpackStatus();
       break;
     case 2:
-      drawFlamethrower();
+      drawWristRocket();
       break;
     case 3:
-      drawGrappleHook();
+      drawFlamethrower();
       break;
     case 4:
-      drawShieldGenerator();
+      drawGrappleHook();
       break;
     case 5:
-      drawTargetingSystem();
+      drawShieldGenerator();
       break;
     case 6:
-      drawPowerStatus();
+      drawTargetingSystem();
       break;
     case 7:
-      drawMandalorianText1();
+      drawPowerStatus();
       break;
     case 8:
+      drawMandalorianText1();
+      break;
+    case 9:
       drawMandalorianText2();
       break;
   }
@@ -142,6 +145,65 @@ void drawChainCode() {
   // Horns/tusks extending from sides
   u8g2.drawLine(skullX - 7, skullY + 1, skullX - 8, skullY + 2);
   u8g2.drawLine(skullX + 7, skullY + 1, skullX + 8, skullY + 2);
+}
+
+// Jetpack Status
+void drawJetpackStatus() {
+  u8g2.setFont(u8g2_font_6x10_tr);
+  u8g2.drawStr(30, 10, "JETPACK SYS");
+  
+  // Jetpack icon (simplified side view)
+  int jetX = 64;
+  int jetY = 28;
+  
+  // Main body
+  u8g2.drawBox(jetX - 6, jetY - 8, 12, 16);
+  u8g2.drawFrame(jetX - 6, jetY - 8, 12, 16);
+  
+  // Fuel tanks (two cylinders)
+  u8g2.drawBox(jetX - 8, jetY - 6, 3, 12);
+  u8g2.drawBox(jetX + 5, jetY - 6, 3, 12);
+  
+  // Nozzles
+  u8g2.drawBox(jetX - 8, jetY + 7, 3, 3);
+  u8g2.drawBox(jetX + 5, jetY + 7, 3, 3);
+  
+  // Thrust flames (animated)
+  if(frame % 6 < 3) {
+    u8g2.drawLine(jetX - 7, jetY + 11, jetX - 7, jetY + 14);
+    u8g2.drawLine(jetX + 6, jetY + 11, jetX + 6, jetY + 14);
+    u8g2.drawPixel(jetX - 6, jetY + 12);
+    u8g2.drawPixel(jetX + 7, jetY + 12);
+  } else {
+    u8g2.drawLine(jetX - 7, jetY + 11, jetX - 7, jetY + 15);
+    u8g2.drawLine(jetX + 6, jetY + 11, jetX + 6, jetY + 15);
+    u8g2.drawPixel(jetX - 8, jetY + 13);
+    u8g2.drawPixel(jetX + 8, jetY + 13);
+  }
+  
+  // Fuel gauge
+  int fuelPercent = 85 - ((frame / 3) % 70);
+  u8g2.setFont(u8g2_font_5x7_tr);
+  u8g2.drawStr(5, 46, "FUEL:");
+  u8g2.drawFrame(30, 39, 68, 8);
+  u8g2.drawBox(31, 40, (fuelPercent * 66) / 100, 6);
+  
+  // Fuel percentage
+  char fuelStr[8];
+  sprintf(fuelStr, "%d%%", fuelPercent);
+  u8g2.drawStr(102, 46, fuelStr);
+  
+  // Thruster status
+  u8g2.drawStr(5, 56, "THRUST: NOMINAL");
+  
+  // Status indicator
+  if(fuelPercent > 30) {
+    u8g2.drawStr(35, 63, "READY");
+  } else {
+    if((frame / 8) % 2 == 0) {
+      u8g2.drawStr(25, 63, "LOW FUEL!");
+    }
+  }
 }
 
 // Wrist Rocket Launcher
